@@ -32,7 +32,7 @@ func (s *authenticationService) CreateNasabah(nasabah dto.RegisterNasabahDTO) *m
 	NewNasabah := model.Master_Customer{}
 	err := smapping.FillStruct(&NewNasabah, smapping.MapFields(nasabah))
 	if err != nil {
-		fmt.Errorf("error map %v", err)
+		fmt.Errorf("Error map %v", err)
 	}
 
 	response, _ := s.nasabahRepository.CreateNasabah(&NewNasabah)

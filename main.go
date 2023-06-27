@@ -3,6 +3,7 @@ package main
 import (
 	"golang-pinjol/config"
 	"golang-pinjol/controller"
+	"golang-pinjol/middleware"
 	"golang-pinjol/repository"
 	"golang-pinjol/services"
 	"log"
@@ -18,11 +19,13 @@ var (
 	nasabahRepository repository.NasabahRepository = repository.NewNasabahRepository(db)
 
 	// Service
-	jwtService  services.JwtService            = services.NewJwtService()
-	authService services.AuthenticationService = services.NewAuthenticationService(nasabahRepository)
+	jwtService     services.JwtService            = services.NewJwtService()
+	authService    services.AuthenticationService = services.NewAuthenticationService(nasabahRepository)
+	nasabahService services.NasabahServices       = services.NewNasabahService(nasabahRepository)
 
 	// Controller
-	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
+	authController    controller.AuthController    = controller.NewAuthController(authService, jwtService)
+	nasabahController controller.NasabahController = controller.NewNasabahController(nasabahService, jwtService)
 )
 
 func main() {
@@ -35,6 +38,11 @@ func main() {
 	{
 		auth.POST("/register", authController.Register)
 		auth.POST("/login", authController.Login)
+	}
+	nasabah := r.Group("app/nasabah", middleware.Authorize(jwtService))
+	{
+		nasabah.PUT("/update", nasabahController.UpdateNasabahController)
+		nasabah.GET("/profile", nasabahController.ProfileNasabahController)
 	}
 
 	r.Run("localhost:3000")

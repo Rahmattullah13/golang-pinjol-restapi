@@ -14,8 +14,8 @@ func Authorize(jwtService services.JwtService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		header := ctx.GetHeader("Authorization")
 		if header == "" {
-			response := helper.ErrorResponse("failed to Authorization ", "token not found", nil)
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+			reponse := helper.ErrorResponse("failed to Authorization ", "token not found", nil)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, reponse)
 			return
 		}
 		token, err := jwtService.ValidateTokenService(header)
