@@ -63,7 +63,7 @@ func (c *authController) Login(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		return
 	}
-	v := authResult.(model.Master_Customer)
+	v := authResult.(model.Master_Nasabah)
 	generatedToken := c.jwtService.GenerateTokenService(strconv.FormatUint(v.Id, 10))
 	v.Token = generatedToken
 	response := helper.ResponseOK(true, "OK!", v)

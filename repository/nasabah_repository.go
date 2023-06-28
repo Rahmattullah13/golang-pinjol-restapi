@@ -9,13 +9,13 @@ import (
 )
 
 type NasabahRepository interface {
-	CreateNasabah(nasabah *model.Master_Customer) (*model.Master_Customer, error)
-	UpdateNasabah(id uint64, nasabah *model.Master_Customer) (*model.Master_Customer, error)
+	CreateNasabah(nasabah *model.Master_Nasabah) (*model.Master_Nasabah, error)
+	UpdateNasabah(id uint64, nasabah *model.Master_Nasabah) (*model.Master_Nasabah, error)
 	VerifyCredential(email string, password string) interface{}
 	IsDuplicateEmail(email string) (tx *gorm.DB)
 	IsDuplicateNIK(noKtp string) (tx *gorm.DB)
-	FindByNIK(nik string) model.Master_Customer
-	ProfileNasabah(nasabahID string) model.Master_Customer
+	FindByNIK(nik string) model.Master_Nasabah
+	ProfileNasabah(nasabahID string) model.Master_Nasabah
 }
 
 type nasabahConnection struct {
@@ -28,7 +28,7 @@ func NewNasabahRepository(db *gorm.DB) NasabahRepository {
 	}
 }
 
-func (db *nasabahConnection) CreateNasabah(nasabah *model.Master_Customer) (*model.Master_Customer, error) {
+func (db *nasabahConnection) CreateNasabah(nasabah *model.Master_Nasabah) (*model.Master_Nasabah, error) {
 	nasabah.Password = HashPassword([]byte(nasabah.Password))
 	if err := db.db.Create(nasabah).Error; err != nil {
 		panic(err)
@@ -36,8 +36,8 @@ func (db *nasabahConnection) CreateNasabah(nasabah *model.Master_Customer) (*mod
 	return nasabah, nil
 }
 
-func (db *nasabahConnection) UpdateNasabah(id uint64, nasabah *model.Master_Customer) (*model.Master_Customer, error) {
-	var existingNasabah model.Master_Customer
+func (db *nasabahConnection) UpdateNasabah(id uint64, nasabah *model.Master_Nasabah) (*model.Master_Nasabah, error) {
+	var existingNasabah model.Master_Nasabah
 	if err := db.db.First(&existingNasabah, id).Error; err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (db *nasabahConnection) UpdateNasabah(id uint64, nasabah *model.Master_Cust
 }
 
 func (db *nasabahConnection) VerifyCredential(email string, password string) interface{} {
-	var nasabah model.Master_Customer
+	var nasabah model.Master_Nasabah
 	res := db.db.Where("email = $1", email).Take(&nasabah)
 	if res.Error != nil {
 		return nil
@@ -78,23 +78,23 @@ func (db *nasabahConnection) VerifyCredential(email string, password string) int
 }
 
 func (db *nasabahConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
-	var nasabah model.Master_Customer
+	var nasabah model.Master_Nasabah
 	return db.db.Where("email = $1", email).Take(&nasabah)
 }
 
 func (db *nasabahConnection) IsDuplicateNIK(noKtp string) (tx *gorm.DB) {
-	var nasabah model.Master_Customer
+	var nasabah model.Master_Nasabah
 	return db.db.Where("noKtp = $1", noKtp).Take(&nasabah)
 }
 
-func (db *nasabahConnection) FindByNIK(nik string) model.Master_Customer {
-	var nasabah model.Master_Customer
+func (db *nasabahConnection) FindByNIK(nik string) model.Master_Nasabah {
+	var nasabah model.Master_Nasabah
 	db.db.Where("no_ktp = $1", nik).Take(&nasabah)
 	return nasabah
 }
 
-func (db *nasabahConnection) ProfileNasabah(nasabahID string) model.Master_Customer {
-	var nasabah model.Master_Customer
+func (db *nasabahConnection) ProfileNasabah(nasabahID string) model.Master_Nasabah {
+	var nasabah model.Master_Nasabah
 	db.db.Find(&nasabah, nasabahID)
 	return nasabah
 }

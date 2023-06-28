@@ -29,17 +29,17 @@ func NewNasabahController(nasabahservice services.NasabahServices, jwtService se
 	}
 }
 
-func (nc *nasabahController) UpdateNasabahController(ctx *gin.Context) {
-	var nasabahUpdateDTO dto.UpdateNasabahDTO
-	err := ctx.ShouldBind(&nasabahUpdateDTO)
+func (c *nasabahController) UpdateNasabahController(context *gin.Context) {
+	var customerUpdateDTO dto.UpdateNasabahDTO
+	err := context.ShouldBind(&customerUpdateDTO)
 	if err != nil {
 		response := helper.ErrorResponse("Fail to process request", err.Error(), helper.EmptyObject{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		context.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	authHeader := ctx.GetHeader("Authorization")
-	token, errToken := nc.jwtService.ValidateTokenService(authHeader)
+	authHeader := context.GetHeader("Authorization")
+	token, errToken := c.jwtService.ValidateTokenService(authHeader)
 	if errToken != nil {
 		panic(errToken.Error())
 	}
@@ -48,10 +48,10 @@ func (nc *nasabahController) UpdateNasabahController(ctx *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	nasabahUpdateDTO.Id = id
-	nasabah := nc.nasabahService.UpdateNasabah(nasabahUpdateDTO)
-	response := helper.ResponseOK(true, "OK", nasabah)
-	ctx.JSON(http.StatusOK, response)
+	customerUpdateDTO.Id = id
+	customer := c.nasabahService.UpdateNasabah(customerUpdateDTO)
+	response := helper.ResponseOK(true, "OK!", customer)
+	context.JSON(http.StatusOK, response)
 }
 
 func (nc *nasabahController) ProfileNasabahController(ctx *gin.Context) {

@@ -10,8 +10,8 @@ import (
 )
 
 type NasabahServices interface {
-	UpdateNasabah(nasabah dto.UpdateNasabahDTO) *model.Master_Customer
-	ProfileNasabah(nasabahId string) model.Master_Customer
+	UpdateNasabah(nasabah dto.UpdateNasabahDTO) *model.Master_Nasabah
+	ProfileNasabah(nasabahId string) model.Master_Nasabah
 }
 
 type nasabahService struct {
@@ -24,17 +24,16 @@ func NewNasabahService(nasabahRepo repository.NasabahRepository) NasabahServices
 	}
 }
 
-func (s *nasabahService) UpdateNasabah(nasabah dto.UpdateNasabahDTO) *model.Master_Customer {
-	var NewNasabah model.Master_Customer
+func (s *nasabahService) UpdateNasabah(nasabah dto.UpdateNasabahDTO) *model.Master_Nasabah {
+	var NewNasabah model.Master_Nasabah
 	err := smapping.FillStruct(&NewNasabah, smapping.MapFields(&nasabah))
 	if err != nil {
-		log.Printf("Error map %v", err)
+		log.Println("Error map %v", err)
 	}
-
 	update, _ := s.nasabahRepository.UpdateNasabah(NewNasabah.Id, &NewNasabah)
 	return update
 }
 
-func (s *nasabahService) ProfileNasabah(nasabahId string) model.Master_Customer {
+func (s *nasabahService) ProfileNasabah(nasabahId string) model.Master_Nasabah {
 	return s.nasabahRepository.ProfileNasabah(nasabahId)
 }
