@@ -30,8 +30,8 @@ func NewNasabahController(nasabahservice services.NasabahServices, jwtService se
 }
 
 func (c *nasabahController) UpdateNasabahController(context *gin.Context) {
-	var customerUpdateDTO dto.UpdateNasabahDTO
-	err := context.ShouldBind(&customerUpdateDTO)
+	var nasabahUpdateDTO dto.UpdateNasabahDTO
+	err := context.ShouldBind(&nasabahUpdateDTO)
 	if err != nil {
 		response := helper.ErrorResponse("Fail to process request", err.Error(), helper.EmptyObject{})
 		context.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -44,13 +44,13 @@ func (c *nasabahController) UpdateNasabahController(context *gin.Context) {
 		panic(errToken.Error())
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["customer_id"]), 10, 64)
+	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["nasabah_id"]), 10, 64)
 	if err != nil {
 		panic(err.Error())
 	}
-	customerUpdateDTO.Id = id
-	customer := c.nasabahService.UpdateNasabah(customerUpdateDTO)
-	response := helper.ResponseOK(true, "OK!", customer)
+	nasabahUpdateDTO.Id = id
+	nasabah := c.nasabahService.UpdateNasabah(nasabahUpdateDTO)
+	response := helper.ResponseOK(true, "OK!", nasabah)
 	context.JSON(http.StatusOK, response)
 }
 
@@ -61,7 +61,7 @@ func (nc *nasabahController) ProfileNasabahController(ctx *gin.Context) {
 		panic(errToken.Error())
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	id := fmt.Sprintf("%v", claims["customer_id"])
+	id := fmt.Sprintf("%v", claims["nasabah_id"])
 	nasabah := nc.nasabahService.ProfileNasabah(id)
 	response := helper.ResponseOK(true, "OK!", nasabah)
 	ctx.JSON(http.StatusOK, response)

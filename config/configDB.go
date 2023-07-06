@@ -29,7 +29,7 @@ func ConnectDB() *gorm.DB {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&model.Master_Nasabah{}, &model.Master_Document_Nasabah{}, &model.Master_Jobs_Nasabah{}, &model.Master_Loan{}, &model.Master_Payment_History{}, &model.Transactions_Payment_Loan{})
+	err = db.AutoMigrate(&model.Master_Nasabah{}, &model.Master_Jobs_Nasabah{}, &model.Master_Loan{}, &model.Master_Payment_History{}, &model.Transactions_Payment_Loan{})
 	if err != nil {
 		fmt.Println("Error migrating tables: ", err)
 		os.Exit(1)

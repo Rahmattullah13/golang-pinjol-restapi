@@ -9,13 +9,13 @@ import (
 )
 
 type JwtService interface {
-	GenerateTokenService(CustomerID string) string
+	GenerateTokenService(NasabahID string) string
 	ValidateTokenService(token string) (*jwt.Token, error)
 	RefreshTokenService(token string) (string, error)
 }
 
 type jwtCustomClaim struct {
-	CustomerID string `json:"customer_id"`
+	NasabahID string `json:"nasabah_id"`
 	jwt.StandardClaims
 }
 
@@ -39,9 +39,9 @@ func getSecretKey() string {
 	return secretKey
 }
 
-func (j *jwtService) GenerateTokenService(CustomerID string) string {
+func (j *jwtService) GenerateTokenService(NasabahID string) string {
 	claims := &jwtCustomClaim{
-		CustomerID,
+		NasabahID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
 			Issuer:    j.issuer,
@@ -59,7 +59,7 @@ func (j *jwtService) GenerateTokenService(CustomerID string) string {
 func (j *jwtService) ValidateTokenService(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(t_ *jwt.Token) (interface{}, error) {
 		if _, ok := t_.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Error signing method: %v", t_.Header["alg"])
+			return nil, fmt.Errorf("error signing method: %v", t_.Header["alg"])
 		}
 		return []byte(j.secretKey), nil
 	})
@@ -72,7 +72,7 @@ func (j *jwtService) RefreshTokenService(token string) (string, error) {
 	}
 	claims, ok := t.Claims.(*jwtCustomClaim)
 	if !ok {
-		return "", fmt.Errorf("Unexpected claims type")
+		return "", fmt.Errorf("unexpected claims type")
 	}
 	claims.ExpiresAt = time.Now().AddDate(1, 0, 0).Unix()
 	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

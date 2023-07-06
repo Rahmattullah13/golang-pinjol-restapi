@@ -41,10 +41,10 @@ func (c *authController) Register(ctx *gin.Context) {
 		response := helper.ErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObject{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
-		createdCustomer := c.authService.CreateNasabah(registerDTO)
-		token := c.jwtService.GenerateTokenService(strconv.FormatUint(createdCustomer.Id, 10))
-		createdCustomer.Token = token
-		response := helper.ResponseOK(true, "OK!", createdCustomer)
+		createdNasabah := c.authService.CreateNasabah(registerDTO)
+		token := c.jwtService.GenerateTokenService(strconv.FormatUint(createdNasabah.Id, 10))
+		createdNasabah.Token = token
+		response := helper.ResponseOK(true, "OK!", createdNasabah)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }

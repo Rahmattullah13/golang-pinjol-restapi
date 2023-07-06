@@ -28,7 +28,7 @@ func (s *nasabahService) UpdateNasabah(nasabah dto.UpdateNasabahDTO) *model.Mast
 	var NewNasabah model.Master_Nasabah
 	err := smapping.FillStruct(&NewNasabah, smapping.MapFields(&nasabah))
 	if err != nil {
-		log.Println("Error map %v", err)
+		log.Printf("Error map %v", err)
 	}
 	update, _ := s.nasabahRepository.UpdateNasabah(NewNasabah.Id, &NewNasabah)
 	return update

@@ -28,6 +28,7 @@ var (
 	// Controller
 	authController             controller.AuthController             = controller.NewAuthController(authService, jwtService)
 	nasabahController          controller.NasabahController          = controller.NewNasabahController(nasabahService, jwtService)
+	uploadFileController       controller.UploadFileController       = controller.NewUploadFileController(jwtService, db)
 	pekerjaanNasabahController controller.PekerjaanNasabahController = controller.NewPekerjaanNasabahController(pekerjaanNasabahService, jwtService)
 )
 
@@ -49,7 +50,12 @@ func main() {
 		nasabah.GET("/profile", nasabahController.ProfileNasabahController)
 	}
 
-	pekerjaanNasabah := r.Group("pinjol/pekerjaan", middleware.Authorize(jwtService))
+	documentNasabah := r.Group("app/document", middleware.Authorize(jwtService))
+	{
+		documentNasabah.PUT("/upload/:nasabah_id", uploadFileController.UploadFile)
+	}
+
+	pekerjaanNasabah := r.Group("app/jobs", middleware.Authorize(jwtService))
 	{
 		pekerjaanNasabah.POST("/addJobs", pekerjaanNasabahController.AddNasabahJobsController)
 		pekerjaanNasabah.PUT("/:id", pekerjaanNasabahController.NasabahUpdateJobsController)
