@@ -18,18 +18,21 @@ var (
 	// Repository
 	nasabahRepository   repository.NasabahRepository     = repository.NewNasabahRepository(db)
 	pekerjaanRepository repository.RepositoryNasabahJobs = repository.NewRepositoryNasabahJobs(db)
+	loanRepository      repository.LoansRepository       = repository.NewLoansRepository(db)
 
 	// Service
 	jwtService              services.JwtService              = services.NewJwtService()
 	authService             services.AuthenticationService   = services.NewAuthenticationService(nasabahRepository)
 	nasabahService          services.NasabahServices         = services.NewNasabahService(nasabahRepository)
 	pekerjaanNasabahService services.PekerjaanNasabahService = services.NewPekerjaanNasabahService(pekerjaanRepository)
+	loanService             services.LoanService             = services.NewLoanService(loanRepository, nasabahRepository)
 
 	// Controller
 	authController             controller.AuthController             = controller.NewAuthController(authService, jwtService)
 	nasabahController          controller.NasabahController          = controller.NewNasabahController(nasabahService, jwtService)
 	uploadFileController       controller.UploadFileController       = controller.NewUploadFileController(jwtService, db)
 	pekerjaanNasabahController controller.PekerjaanNasabahController = controller.NewPekerjaanNasabahController(pekerjaanNasabahService, jwtService)
+	loanController             controller.LoanController             = controller.NewLoanController(loanService, jwtService)
 )
 
 func main() {
@@ -61,6 +64,15 @@ func main() {
 		pekerjaanNasabah.PUT("/:id", pekerjaanNasabahController.NasabahUpdateJobsController)
 		pekerjaanNasabah.GET("/:id", pekerjaanNasabahController.SearchNasabahJobsByIdController)
 		pekerjaanNasabah.DELETE("/:id", pekerjaanNasabahController.DeleteNasabahJobsController)
+	}
+
+	loanNasabah := r.Group("app/loans", middleware.Authorize(jwtService))
+	{
+		loanNasabah.POST("/loan", loanController.CreateLoanController)
+		loanNasabah.PUT("/:id", loanController.UpdateLoanController)
+		loanNasabah.GET("/:id", loanController.SearchLoanByIdController)
+		loanNasabah.PUT("/verification/:id", loanController.UpdateStatusApprovalController)
+		loanNasabah.DELETE("/:id", loanController.DeleteLoanController)
 	}
 
 	r.Run("localhost:3000")
