@@ -19,6 +19,7 @@ var (
 	nasabahRepository   repository.NasabahRepository     = repository.NewNasabahRepository(db)
 	pekerjaanRepository repository.RepositoryNasabahJobs = repository.NewRepositoryNasabahJobs(db)
 	loanRepository      repository.LoansRepository       = repository.NewLoansRepository(db)
+	paymentRepository   repository.PaymentRepository     = repository.NewPaymentRepository(db)
 
 	// Service
 	jwtService              services.JwtService              = services.NewJwtService()
@@ -26,6 +27,7 @@ var (
 	nasabahService          services.NasabahServices         = services.NewNasabahService(nasabahRepository)
 	pekerjaanNasabahService services.PekerjaanNasabahService = services.NewPekerjaanNasabahService(pekerjaanRepository)
 	loanService             services.LoanService             = services.NewLoanService(loanRepository, nasabahRepository)
+	paymentService          services.PaymentService          = services.NewPaymentService(paymentRepository)
 
 	// Controller
 	authController             controller.AuthController             = controller.NewAuthController(authService, jwtService)
@@ -33,6 +35,7 @@ var (
 	uploadFileController       controller.UploadFileController       = controller.NewUploadFileController(jwtService, db)
 	pekerjaanNasabahController controller.PekerjaanNasabahController = controller.NewPekerjaanNasabahController(pekerjaanNasabahService, jwtService)
 	loanController             controller.LoanController             = controller.NewLoanController(loanService, jwtService)
+	paymentController          controller.PaymentController          = controller.NewPaymentController(paymentService, jwtService)
 )
 
 func main() {
@@ -73,6 +76,16 @@ func main() {
 		loanNasabah.GET("/:id", loanController.SearchLoanByIdController)
 		loanNasabah.PUT("/verification/:id", loanController.UpdateStatusApprovalController)
 		loanNasabah.DELETE("/:id", loanController.DeleteLoanController)
+	}
+
+	paymentsNasabah := r.Group("app/payments", middleware.Authorize(jwtService))
+	{
+		paymentsNasabah.POST("/payment", paymentController.PaymentLoanController)
+		paymentsNasabah.GET("/status/:status", paymentController.ListPaymentByStatusController)
+		paymentsNasabah.PUT("/:id", paymentController.UpdatePaymentController)
+		paymentsNasabah.GET("/:id", paymentController.GetPaymentPerBulanController)
+		paymentsNasabah.GET("/total-payments/:id", paymentController.GetTotalPaymentController)
+		paymentsNasabah.DELETE("/:id", paymentController.DeletePaymentController)
 	}
 
 	r.Run("localhost:3000")
