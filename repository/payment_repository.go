@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"golang-pinjol/model"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -36,16 +37,19 @@ func (db *paymentRepository) CreatePaymentRepository(payment *model.Transactions
 			return nil
 		}
 
-		// go func()  {
-		// 	history := &model.Master_Payment_History{
-		// 		Loan_id: payment.Loan_id,
-		// 		Payment_id: payment.ID,
-		// 		Date: payment.Payment_Date,
-		// 		Loan: payment.Loan,
-		// 		Transaction: *payment,
-		// 	}
-		// 	histories := New
-		// }()
+		go func() {
+			history := &model.Master_Payment_History{
+				Loan_id:     payment.Loan_id,
+				Payment_id:  payment.ID,
+				Date:        payment.Payment_Date,
+				Loan:        payment.Loan,
+				Transaction: *payment,
+			}
+			histories := NewHistoryPaymentRepository(db.db)
+			if err := histories.CreateHistoryPaymentRepository(history); err != nil {
+				log.Println(err)
+			}
+		}()
 		return nil
 	}); err != nil {
 		return nil, err

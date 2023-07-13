@@ -16,10 +16,11 @@ var (
 	db *gorm.DB = config.ConnectDB()
 
 	// Repository
-	nasabahRepository   repository.NasabahRepository     = repository.NewNasabahRepository(db)
-	pekerjaanRepository repository.RepositoryNasabahJobs = repository.NewRepositoryNasabahJobs(db)
-	loanRepository      repository.LoansRepository       = repository.NewLoansRepository(db)
-	paymentRepository   repository.PaymentRepository     = repository.NewPaymentRepository(db)
+	nasabahRepository   repository.NasabahRepository        = repository.NewNasabahRepository(db)
+	pekerjaanRepository repository.RepositoryNasabahJobs    = repository.NewRepositoryNasabahJobs(db)
+	loanRepository      repository.LoansRepository          = repository.NewLoansRepository(db)
+	paymentRepository   repository.PaymentRepository        = repository.NewPaymentRepository(db)
+	historyRepository   repository.HistoryPaymentRepository = repository.NewHistoryPaymentRepository(db)
 
 	// Service
 	jwtService              services.JwtService              = services.NewJwtService()
@@ -28,6 +29,7 @@ var (
 	pekerjaanNasabahService services.PekerjaanNasabahService = services.NewPekerjaanNasabahService(pekerjaanRepository)
 	loanService             services.LoanService             = services.NewLoanService(loanRepository, nasabahRepository)
 	paymentService          services.PaymentService          = services.NewPaymentService(paymentRepository)
+	historyService          services.HistoryPaymentService   = services.NewHistoryPaymentService(historyRepository)
 
 	// Controller
 	authController             controller.AuthController             = controller.NewAuthController(authService, jwtService)
@@ -36,6 +38,7 @@ var (
 	pekerjaanNasabahController controller.PekerjaanNasabahController = controller.NewPekerjaanNasabahController(pekerjaanNasabahService, jwtService)
 	loanController             controller.LoanController             = controller.NewLoanController(loanService, jwtService)
 	paymentController          controller.PaymentController          = controller.NewPaymentController(paymentService, jwtService)
+	historyPaymentController   controller.HistoryPaymentController   = controller.NewHistoryPaymentController(historyService, jwtService)
 )
 
 func main() {
@@ -86,6 +89,12 @@ func main() {
 		paymentsNasabah.GET("/:id", paymentController.GetPaymentPerBulanController)
 		paymentsNasabah.GET("/total-payments/:id", paymentController.GetTotalPaymentController)
 		paymentsNasabah.DELETE("/:id", paymentController.DeletePaymentController)
+	}
+
+	historyPaymentNasabah := r.Group("app/history/payment", middleware.Authorize(jwtService))
+	{
+		historyPaymentNasabah.GET("/", historyPaymentController.GetAllHistoryPaymentController)
+		historyPaymentNasabah.GET("/:id", historyPaymentController.GetHistoryPaymentByIdController)
 	}
 
 	r.Run("localhost:3000")
