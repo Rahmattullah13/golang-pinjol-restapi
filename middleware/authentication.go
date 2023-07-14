@@ -27,7 +27,7 @@ func Authorize(jwtService services.JwtService) gin.HandlerFunc {
 		}
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			log.Println("claims[nasabah_id] :", claims["nasabah_id"])
+			log.Println("claims[customer_id] :", claims["customer_id"])
 			log.Println("claims[issuer] :", claims["issuer"])
 		} else {
 			response := helper.ErrorResponse("your token is invalid ", "invalid token", nil)

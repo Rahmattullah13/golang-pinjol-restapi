@@ -9,13 +9,13 @@ import (
 )
 
 type JwtService interface {
-	GenerateTokenService(NasabahID string) string
+	GenerateTokenService(CustomerID string) string
 	ValidateTokenService(token string) (*jwt.Token, error)
 	RefreshTokenService(token string) (string, error)
 }
 
 type jwtCustomClaim struct {
-	NasabahID string `json:"nasabah_id"`
+	CustomerID string `json:"customer_id"`
 	jwt.StandardClaims
 }
 
@@ -39,9 +39,9 @@ func getSecretKey() string {
 	return secretKey
 }
 
-func (j *jwtService) GenerateTokenService(NasabahID string) string {
+func (j *jwtService) GenerateTokenService(CustomerID string) string {
 	claims := &jwtCustomClaim{
-		NasabahID,
+		CustomerID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
 			Issuer:    j.issuer,

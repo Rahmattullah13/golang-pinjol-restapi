@@ -1,0 +1,735 @@
+definitions:
+  dto.CreateJobsCustomerDTO:
+    properties:
+      company_address:
+        type: string
+      customer_id:
+        type: integer
+      job_position:
+        type: string
+      payDay_date:
+        type: string
+    required:
+    - company_address
+    - customer_id
+    - job_position
+    - payDay_date
+    type: object
+  dto.CreateLoanDTO:
+    properties:
+      amount:
+        type: integer
+      customer_id:
+        type: integer
+      loan_duration:
+        type: integer
+      loan_interest_rates:
+        type: integer
+    required:
+    - amount
+    - customer_id
+    - loan_duration
+    - loan_interest_rates
+    type: object
+  dto.CreatePaymentDTO:
+    properties:
+      loan_id:
+        type: integer
+      monthly_payment:
+        type: integer
+    required:
+    - loan_id
+    type: object
+  dto.LoginCustomerDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterCustomerDTO:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      no_ktp:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - address
+    - email
+    - name
+    - no_ktp
+    - password
+    - phone_number
+    type: object
+  dto.UpdateCustomerDTO:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      no_ktp:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - address
+    - email
+    - name
+    - no_ktp
+    - password
+    - phone_number
+    type: object
+  dto.UpdateJobsCustomerDTO:
+    properties:
+      company_address:
+        type: string
+      customer_id:
+        type: integer
+      id:
+        type: integer
+      job_position:
+        type: string
+      payDay_date:
+        type: string
+    required:
+    - company_address
+    - customer_id
+    - job_position
+    - payDay_date
+    type: object
+  dto.UpdateLoanDTO:
+    properties:
+      amount:
+        type: integer
+      customer_id:
+        type: integer
+      id:
+        type: integer
+      loan_duration:
+        type: integer
+      loan_interest_rates:
+        type: integer
+    required:
+    - amount
+    - customer_id
+    - loan_duration
+    - loan_interest_rates
+    type: object
+  dto.UpdatePaymentDTO:
+    properties:
+      id:
+        type: integer
+      loan_id:
+        type: integer
+      monthly_payment:
+        type: integer
+    required:
+    - loan_id
+    - monthly_payment
+    type: object
+  helper.Response:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Dokumentasi REST API
+  title: Golang Pinjol
+  version: "0.1"
+paths:
+  /app/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a customer
+      parameters:
+      - description: Login details
+        in: body
+        name: loginDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginCustomerDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Customer Login
+      tags:
+      - Authentication
+  /app/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new customer
+      parameters:
+      - description: Registration details
+        in: body
+        name: registerDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterCustomerDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Register Customer
+      tags:
+      - Authentication
+  /app/customer/profile:
+    get:
+      description: Get customer profile
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - BearerAuth: []
+      summary: Get Customer Profile
+      tags:
+      - Customer
+  /app/customer/update:
+    put:
+      consumes:
+      - application/json
+      description: Update customer information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer data to be updated
+        in: body
+        name: updateCustomer
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCustomerDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - BearerAuth: []
+      summary: Update Customer
+      tags:
+      - Customer
+  /app/document/upload/{customer_id}:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Upload a file for a specific customer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: customer_id
+        required: true
+        type: string
+      - description: Document file to upload
+        in: formData
+        name: document
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Upload File
+      tags:
+      - Document
+  /app/history/payment/:
+    get:
+      description: Get a list of all available history payments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Get all history payment
+      tags:
+      - History Payment
+  /app/history/payment/{id}:
+    get:
+      description: Get a history payment by its ID
+      parameters:
+      - description: ID of the history payment
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Get history payment by ID
+      tags:
+      - History Payment
+  /app/jobs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete customer jobs
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Delete Customer Jobs
+      tags:
+      - Customer Jobs
+    get:
+      consumes:
+      - application/json
+      description: Get customer jobs by ID
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Search Customer Jobs By ID
+      tags:
+      - Customer Jobs
+    put:
+      consumes:
+      - application/json
+      description: Update existing customer jobs
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer Job ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Customer Jobs DTO
+        in: body
+        name: updateCustomerJobsDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateJobsCustomerDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Update Customer Jobs
+      tags:
+      - Customer Jobs
+  /app/jobs/addJobs:
+    post:
+      consumes:
+      - application/json
+      description: Add new customer jobs
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Add Customer Jobs DTO
+        in: body
+        name: addJobsCustomerDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateJobsCustomerDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Add Customer Jobs
+      tags:
+      - Customer Jobs
+  /app/loans/{id}:
+    delete:
+      description: Delete an existing loan
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Delete Loan
+      tags:
+      - Loans
+    get:
+      description: Get loan details by ID
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Search Loan by ID
+      tags:
+      - Loans
+    put:
+      consumes:
+      - application/json
+      description: Update an existing loan
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Loan object to update
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateLoanDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Update Loan
+      tags:
+      - Loans
+  /app/loans/loan:
+    post:
+      consumes:
+      - application/json
+      description: Create a new loan
+      parameters:
+      - description: Loan object to create
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateLoanDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Create Loan
+      tags:
+      - Loans
+  /app/loans/verification/{id}:
+    put:
+      description: Update the approval status of a loan
+      parameters:
+      - description: Loan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Update Loan Approval Status
+      tags:
+      - Loans
+  /app/payments/{id}:
+    delete:
+      description: Delete an existing payment
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Delete Payment
+      tags:
+      - Payment
+    get:
+      description: Get payment details per month
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Get Payment per Month
+      tags:
+      - Payment
+    put:
+      consumes:
+      - application/json
+      description: Update an existing payment
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated payment details
+        in: body
+        name: updates
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePaymentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Update Payment
+      tags:
+      - Payment
+  /app/payments/payment:
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment for a loan
+      parameters:
+      - description: Payment details
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Create Payment Loan
+      tags:
+      - Payment
+  /app/payments/status/{status}:
+    get:
+      description: Get a list of payments by status
+      parameters:
+      - description: Payment status
+        in: path
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: List Payments by Status
+      tags:
+      - Payment
+  /app/payments/total-payments/{id}:
+    get:
+      description: Get total payment amount
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: Get Total Payment
+      tags:
+      - Payment
+swagger: "2.0"

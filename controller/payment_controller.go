@@ -32,6 +32,15 @@ func NewPaymentController(ps services.PaymentService, js services.JwtService) Pa
 	}
 }
 
+// @Summary Create Payment Loan
+// @Tags Payment
+// @Description Create a new payment for a loan
+// @Accept json
+// @Produce json
+// @Param payment body dto.CreatePaymentDTO true "Payment details"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/payment [post]
 func (pc *paymentController) PaymentLoanController(ctx *gin.Context) {
 	var payments dto.CreatePaymentDTO
 	err := ctx.ShouldBind(&payments)
@@ -50,6 +59,16 @@ func (pc *paymentController) PaymentLoanController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Update Payment
+// @Tags Payment
+// @Description Update an existing payment
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment ID"
+// @Param updates body dto.UpdatePaymentDTO true "Updated payment details"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/{id} [put]
 func (pc *paymentController) UpdatePaymentController(ctx *gin.Context) {
 	var updates dto.UpdatePaymentDTO
 	err := ctx.ShouldBindJSON(&updates)
@@ -78,6 +97,14 @@ func (pc *paymentController) UpdatePaymentController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary List Payments by Status
+// @Tags Payment
+// @Description Get a list of payments by status
+// @Produce json
+// @Param status path string true "Payment status"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/status/{status} [get]
 func (pc *paymentController) ListPaymentByStatusController(ctx *gin.Context) {
 	status := ctx.Param("status")
 	payments, err := pc.paymentService.ListPaymentByStatusService(status)
@@ -90,6 +117,14 @@ func (pc *paymentController) ListPaymentByStatusController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get Payment per Month
+// @Tags Payment
+// @Description Get payment details per month
+// @Produce json
+// @Param id path int true "Payment ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/{id} [get]
 func (pc *paymentController) GetPaymentPerBulanController(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 0, 0)
 	if err != nil {
@@ -109,6 +144,14 @@ func (pc *paymentController) GetPaymentPerBulanController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get Total Payment
+// @Tags Payment
+// @Description Get total payment amount
+// @Produce json
+// @Param id path int true "Payment ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/total-payments/{id} [get]
 func (pc *paymentController) GetTotalPaymentController(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 0, 0)
 	if err != nil {
@@ -128,6 +171,14 @@ func (pc *paymentController) GetTotalPaymentController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Delete Payment
+// @Tags Payment
+// @Description Delete an existing payment
+// @Produce json
+// @Param id path int true "Payment ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/payments/{id} [delete]
 func (pc *paymentController) DeletePaymentController(ctx *gin.Context) {
 	var txLoan model.Transactions_Payment_Loan
 	id, err := strconv.ParseInt(ctx.Param("id"), 0, 0)

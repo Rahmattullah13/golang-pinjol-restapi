@@ -11,37 +11,37 @@ import (
 )
 
 type AuthenticationService interface {
-	CreateNasabah(nasabah dto.RegisterNasabahDTO) *model.Master_Nasabah
+	CreateCustomer(customer dto.RegisterCustomerDTO) *model.Master_Customer
 	VerifyCredential(email string, password string) interface{}
 	IsDuplicateEmail(email string) bool
 	IsDuplicateNIK(noKtp string) bool
-	FindByNIK(nik string) model.Master_Nasabah
+	FindByNIK(nik string) model.Master_Customer
 }
 
 type authenticationService struct {
-	nasabahRepository repository.NasabahRepository
+	customerRepository repository.CustomerRepository
 }
 
-func NewAuthenticationService(nasabah repository.NasabahRepository) AuthenticationService {
+func NewAuthenticationService(customer repository.CustomerRepository) AuthenticationService {
 	return &authenticationService{
-		nasabahRepository: nasabah,
+		customerRepository: customer,
 	}
 }
 
-func (s *authenticationService) CreateNasabah(nasabah dto.RegisterNasabahDTO) *model.Master_Nasabah {
-	NewNasabah := model.Master_Nasabah{}
-	err := smapping.FillStruct(&NewNasabah, smapping.MapFields(nasabah))
+func (s *authenticationService) CreateCustomer(customer dto.RegisterCustomerDTO) *model.Master_Customer {
+	NewCustomer := model.Master_Customer{}
+	err := smapping.FillStruct(&NewCustomer, smapping.MapFields(customer))
 	if err != nil {
 		fmt.Printf("Error map %v", err)
 	}
 
-	response, _ := s.nasabahRepository.CreateNasabah(&NewNasabah)
+	response, _ := s.customerRepository.CreateCustomer(&NewCustomer)
 	return response
 }
 
 func (s *authenticationService) VerifyCredential(email string, password string) interface{} {
-	response := s.nasabahRepository.VerifyCredential(email, password)
-	if v, ok := response.(model.Master_Nasabah); ok {
+	response := s.customerRepository.VerifyCredential(email, password)
+	if v, ok := response.(model.Master_Customer); ok {
 		comparePassword := bcrypt.CompareHashAndPassword([]byte(v.Password), []byte(password))
 		if v.Email == email && comparePassword == nil {
 			return response
@@ -52,15 +52,15 @@ func (s *authenticationService) VerifyCredential(email string, password string) 
 }
 
 func (s *authenticationService) IsDuplicateEmail(email string) bool {
-	response := s.nasabahRepository.IsDuplicateEmail(email)
+	response := s.customerRepository.IsDuplicateEmail(email)
 	return !(response.Error == nil)
 }
 
 func (s *authenticationService) IsDuplicateNIK(noKtp string) bool {
-	response := s.nasabahRepository.IsDuplicateNIK(noKtp)
+	response := s.customerRepository.IsDuplicateNIK(noKtp)
 	return !(response.Error == nil)
 }
 
-func (s *authenticationService) FindByNIK(nik string) model.Master_Nasabah {
-	return s.nasabahRepository.FindByNIK(nik)
+func (s *authenticationService) FindByNIK(nik string) model.Master_Customer {
+	return s.customerRepository.FindByNIK(nik)
 }

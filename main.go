@@ -8,6 +8,11 @@ import (
 	"golang-pinjol/services"
 	"log"
 
+	_ "golang-pinjol/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -16,30 +21,36 @@ var (
 	db *gorm.DB = config.ConnectDB()
 
 	// Repository
-	nasabahRepository   repository.NasabahRepository        = repository.NewNasabahRepository(db)
-	pekerjaanRepository repository.RepositoryNasabahJobs    = repository.NewRepositoryNasabahJobs(db)
-	loanRepository      repository.LoansRepository          = repository.NewLoansRepository(db)
-	paymentRepository   repository.PaymentRepository        = repository.NewPaymentRepository(db)
-	historyRepository   repository.HistoryPaymentRepository = repository.NewHistoryPaymentRepository(db)
+	customerRepository repository.CustomerRepository       = repository.NewCustomerRepository(db)
+	jobsRepository     repository.CustomerJobsRepository   = repository.NewCustomerJobsRepository(db)
+	loanRepository     repository.LoansRepository          = repository.NewLoansRepository(db)
+	paymentRepository  repository.PaymentRepository        = repository.NewPaymentRepository(db)
+	historyRepository  repository.HistoryPaymentRepository = repository.NewHistoryPaymentRepository(db)
 
 	// Service
-	jwtService              services.JwtService              = services.NewJwtService()
-	authService             services.AuthenticationService   = services.NewAuthenticationService(nasabahRepository)
-	nasabahService          services.NasabahServices         = services.NewNasabahService(nasabahRepository)
-	pekerjaanNasabahService services.PekerjaanNasabahService = services.NewPekerjaanNasabahService(pekerjaanRepository)
-	loanService             services.LoanService             = services.NewLoanService(loanRepository, nasabahRepository)
-	paymentService          services.PaymentService          = services.NewPaymentService(paymentRepository)
-	historyService          services.HistoryPaymentService   = services.NewHistoryPaymentService(historyRepository)
+	jwtService          services.JwtService            = services.NewJwtService()
+	authService         services.AuthenticationService = services.NewAuthenticationService(customerRepository)
+	customerService     services.CustomerServices      = services.NewCustomerService(customerRepository)
+	customerJobsService services.JobsCustomerService   = services.NewJobsCustomerService(jobsRepository)
+	loanService         services.LoanService           = services.NewLoanService(loanRepository, customerRepository)
+	paymentService      services.PaymentService        = services.NewPaymentService(paymentRepository)
+	historyService      services.HistoryPaymentService = services.NewHistoryPaymentService(historyRepository)
 
 	// Controller
-	authController             controller.AuthController             = controller.NewAuthController(authService, jwtService)
-	nasabahController          controller.NasabahController          = controller.NewNasabahController(nasabahService, jwtService)
-	uploadFileController       controller.UploadFileController       = controller.NewUploadFileController(jwtService, db)
-	pekerjaanNasabahController controller.PekerjaanNasabahController = controller.NewPekerjaanNasabahController(pekerjaanNasabahService, jwtService)
-	loanController             controller.LoanController             = controller.NewLoanController(loanService, jwtService)
-	paymentController          controller.PaymentController          = controller.NewPaymentController(paymentService, jwtService)
-	historyPaymentController   controller.HistoryPaymentController   = controller.NewHistoryPaymentController(historyService, jwtService)
+	authController           controller.AuthController           = controller.NewAuthController(authService, jwtService)
+	customerController       controller.CustomerController       = controller.NewCustomerController(customerService, jwtService)
+	uploadFileController     controller.UploadFileController     = controller.NewUploadFileController(jwtService, db)
+	customerJobsController   controller.CustomerJobsController   = controller.NewJobsCustomerController(customerJobsService, jwtService)
+	loanController           controller.LoanController           = controller.NewLoanController(loanService, jwtService)
+	paymentController        controller.PaymentController        = controller.NewPaymentController(paymentService, jwtService)
+	historyPaymentController controller.HistoryPaymentController = controller.NewHistoryPaymentController(historyService, jwtService)
 )
+
+
+// @title Golang Pinjol
+// @description Dokumentasi REST API
+// @version 0.1
+// @host localhost:3000
 
 func main() {
 	defer config.CloseDB(db)
@@ -53,49 +64,51 @@ func main() {
 		auth.POST("/login", authController.Login)
 	}
 
-	nasabah := r.Group("app/nasabah", middleware.Authorize(jwtService))
+	customer := r.Group("app/customer", middleware.Authorize(jwtService))
 	{
-		nasabah.PUT("/update", nasabahController.UpdateNasabahController)
-		nasabah.GET("/profile", nasabahController.ProfileNasabahController)
+		customer.PUT("/update", customerController.UpdateCustomerController)
+		customer.GET("/profile", customerController.ProfileCustomerController)
 	}
 
-	documentNasabah := r.Group("app/document", middleware.Authorize(jwtService))
+	documentCustomer := r.Group("app/document", middleware.Authorize(jwtService))
 	{
-		documentNasabah.PUT("/upload/:nasabah_id", uploadFileController.UploadFile)
+		documentCustomer.PUT("/upload/:customer_id", uploadFileController.UploadFile)
 	}
 
-	pekerjaanNasabah := r.Group("app/jobs", middleware.Authorize(jwtService))
+	customerJobs := r.Group("app/jobs", middleware.Authorize(jwtService))
 	{
-		pekerjaanNasabah.POST("/addJobs", pekerjaanNasabahController.AddNasabahJobsController)
-		pekerjaanNasabah.PUT("/:id", pekerjaanNasabahController.NasabahUpdateJobsController)
-		pekerjaanNasabah.GET("/:id", pekerjaanNasabahController.SearchNasabahJobsByIdController)
-		pekerjaanNasabah.DELETE("/:id", pekerjaanNasabahController.DeleteNasabahJobsController)
+		customerJobs.POST("/addJobs", customerJobsController.AddCustomerJobsController)
+		customerJobs.PUT("/:id", customerJobsController.UpdateCustomerJobsController)
+		customerJobs.GET("/:id", customerJobsController.SearchCustomerJobsByIdController)
+		customerJobs.DELETE("/:id", customerJobsController.DeleteCustomerJobsController)
 	}
 
-	loanNasabah := r.Group("app/loans", middleware.Authorize(jwtService))
+	customerLoans := r.Group("app/loans", middleware.Authorize(jwtService))
 	{
-		loanNasabah.POST("/loan", loanController.CreateLoanController)
-		loanNasabah.PUT("/:id", loanController.UpdateLoanController)
-		loanNasabah.GET("/:id", loanController.SearchLoanByIdController)
-		loanNasabah.PUT("/verification/:id", loanController.UpdateStatusApprovalController)
-		loanNasabah.DELETE("/:id", loanController.DeleteLoanController)
+		customerLoans.POST("/loan", loanController.CreateLoanController)
+		customerLoans.PUT("/:id", loanController.UpdateLoanController)
+		customerLoans.GET("/:id", loanController.SearchLoanByIdController)
+		customerLoans.PUT("/verification/:id", loanController.UpdateStatusApprovalController)
+		customerLoans.DELETE("/:id", loanController.DeleteLoanController)
 	}
 
-	paymentsNasabah := r.Group("app/payments", middleware.Authorize(jwtService))
+	customerPayments := r.Group("app/payments", middleware.Authorize(jwtService))
 	{
-		paymentsNasabah.POST("/payment", paymentController.PaymentLoanController)
-		paymentsNasabah.GET("/status/:status", paymentController.ListPaymentByStatusController)
-		paymentsNasabah.PUT("/:id", paymentController.UpdatePaymentController)
-		paymentsNasabah.GET("/:id", paymentController.GetPaymentPerBulanController)
-		paymentsNasabah.GET("/total-payments/:id", paymentController.GetTotalPaymentController)
-		paymentsNasabah.DELETE("/:id", paymentController.DeletePaymentController)
+		customerPayments.POST("/payment", paymentController.PaymentLoanController)
+		customerPayments.GET("/status/:status", paymentController.ListPaymentByStatusController)
+		customerPayments.PUT("/:id", paymentController.UpdatePaymentController)
+		customerPayments.GET("/:id", paymentController.GetPaymentPerBulanController)
+		customerPayments.GET("/total-payments/:id", paymentController.GetTotalPaymentController)
+		customerPayments.DELETE("/:id", paymentController.DeletePaymentController)
 	}
 
-	historyPaymentNasabah := r.Group("app/history/payment", middleware.Authorize(jwtService))
+	historyPaymentCustomer := r.Group("app/history/payment", middleware.Authorize(jwtService))
 	{
-		historyPaymentNasabah.GET("/", historyPaymentController.GetAllHistoryPaymentController)
-		historyPaymentNasabah.GET("/:id", historyPaymentController.GetHistoryPaymentByIdController)
+		historyPaymentCustomer.GET("/", historyPaymentController.GetAllHistoryPaymentController)
+		historyPaymentCustomer.GET("/:id", historyPaymentController.GetHistoryPaymentByIdController)
 	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Run("localhost:3000")
 }

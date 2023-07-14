@@ -12,7 +12,7 @@ type LoansRepository interface {
 	UpdateLoanRepository(id uint64, loan *model.Master_Loan) error
 	SearchLoanByIdRepository(id uint64) (*model.Master_Loan, error)
 	DeleteLoanRepository(id uint64) error
-	UpdateLoanStatus(nasabahID uint64) (*model.Master_Loan, error)
+	UpdateLoanStatus(customerID uint64) (*model.Master_Loan, error)
 }
 
 type loansRepository struct {
@@ -54,15 +54,15 @@ func (db *loansRepository) DeleteLoanRepository(id uint64) error {
 	return nil
 }
 
-func (db *loansRepository) UpdateLoanStatus(nasabahID uint64) (*model.Master_Loan, error) {
-	var nasabah model.Master_Nasabah
-	if err := db.db.Where("id = $1", nasabahID).First(&nasabah).Error; err != nil {
+func (db *loansRepository) UpdateLoanStatus(customerID uint64) (*model.Master_Loan, error) {
+	var customer model.Master_Customer
+	if err := db.db.Where("id = $1", customerID).First(&customer).Error; err != nil {
 		return nil, err
 	}
 
-	if nasabah.StatusVerified {
+	if customer.StatusVerified {
 		var loan model.Master_Loan
-		if err := db.db.Where("nasabah_id = $1", nasabahID).First(&loan).Error; err != nil {
+		if err := db.db.Where("customer_id = $1", customerID).First(&loan).Error; err != nil {
 			return nil, err
 		}
 
@@ -72,5 +72,5 @@ func (db *loansRepository) UpdateLoanStatus(nasabahID uint64) (*model.Master_Loa
 		}
 		return &loan, nil
 	}
-	return nil, errors.New("nasabah status is not verified")
+	return nil, errors.New("customer status is not verified")
 }

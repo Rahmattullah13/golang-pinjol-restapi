@@ -20,6 +20,19 @@ type uploadFileController struct {
 	db         *gorm.DB
 }
 
+// @Summary Upload File
+// @Schemes {http, https}
+// @Description Upload a file for a specific customer
+// @Tags Document
+// @Accept multipart/form-data
+// @Param customer_id path string true "Customer ID"
+// @Param document formData file true "Document file to upload"
+// @Produce json
+// @Success 200 {object} interface{}
+// @Failure 400 {object} interface{}
+// @Failure 401 {object} interface{}
+// @Failure 500 {object} interface{}
+// @Router /app/document/upload/{customer_id} [put]
 func (uc *uploadFileController) UploadFile(ctx *gin.Context) {
 	// Ensure the method is PUT
 	if ctx.Request.Method != http.MethodPut {
@@ -28,7 +41,7 @@ func (uc *uploadFileController) UploadFile(ctx *gin.Context) {
 	}
 
 	// Retrieve the nasabah_id from the URL
-	nasabahID := ctx.Param("nasabah_id")
+	customerID := ctx.Param("customer_id")
 
 	file, header, err := ctx.Request.FormFile("document")
 	if err != nil {
@@ -56,8 +69,8 @@ func (uc *uploadFileController) UploadFile(ctx *gin.Context) {
 	}
 
 	// Find the user with the given nasabah_id
-	var nasabah model.Master_Nasabah
-	result := uc.db.First(&nasabah, nasabahID)
+	var customer model.Master_Customer
+	result := uc.db.First(&customer, customerID)
 	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find the user"})
 		return
@@ -65,8 +78,8 @@ func (uc *uploadFileController) UploadFile(ctx *gin.Context) {
 
 	// Update status_verified to true if the request is successful
 	if ctx.Writer.Status() == http.StatusOK {
-		nasabah.StatusVerified = true
-		result = uc.db.Save(&nasabah)
+		customer.StatusVerified = true
+		result = uc.db.Save(&customer)
 		if result.Error != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update status_verified"})
 			return

@@ -32,8 +32,17 @@ func NewLoanController(ls services.LoanService, js services.JwtService) LoanCont
 	}
 }
 
+// @Summary Create Loan
+// @Description Create a new loan
+// @Tags Loans
+// @Accept json
+// @Produce json
+// @Param loan body dto.CreateLoanDTO true "Loan object to create"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/loans/loan [post]
 func (lc *loanController) CreateLoanController(ctx *gin.Context) {
-	var createLoanDTO dto.CreatePinjamanDTO
+	var createLoanDTO dto.CreateLoanDTO
 	err := ctx.ShouldBind(&createLoanDTO)
 	if err != nil {
 		response := helper.ErrorResponse("failed to process request", err.Error(), helper.EmptyObject{})
@@ -52,8 +61,18 @@ func (lc *loanController) CreateLoanController(ctx *gin.Context) {
 	}
 }
 
+// @Summary Update Loan
+// @Description Update an existing loan
+// @Tags Loans
+// @Accept json
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Param loan body dto.UpdateLoanDTO true "Loan object to update"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/loans/{id} [put]
 func (lc *loanController) UpdateLoanController(ctx *gin.Context) {
-	var updateLoanDTO dto.UpdatePinjamanDTO
+	var updateLoanDTO dto.UpdateLoanDTO
 	err := ctx.ShouldBind(&updateLoanDTO)
 	if err != nil {
 		response := helper.ErrorResponse("failed to process request", err.Error(), helper.EmptyObject{})
@@ -79,6 +98,14 @@ func (lc *loanController) UpdateLoanController(ctx *gin.Context) {
 	}
 }
 
+// @Summary Search Loan by ID
+// @Description Get loan details by ID
+// @Tags Loans
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/loans/{id} [get]
 func (lc *loanController) SearchLoanByIdController(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
 	if err != nil {
@@ -98,6 +125,14 @@ func (lc *loanController) SearchLoanByIdController(ctx *gin.Context) {
 	}
 }
 
+// @Summary Delete Loan
+// @Description Delete an existing loan
+// @Tags Loans
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/loans/{id} [delete]
 func (lc *loanController) DeleteLoanController(ctx *gin.Context) {
 	var deleteLoan model.Master_Loan
 	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
@@ -113,6 +148,14 @@ func (lc *loanController) DeleteLoanController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Update Loan Approval Status
+// @Description Update the approval status of a loan
+// @Tags Loans
+// @Produce json
+// @Param id path string true "Loan ID"
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/loans/verification/{id} [put]
 func (lc *loanController) UpdateStatusApprovalController(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
 	if err != nil {

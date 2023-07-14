@@ -30,7 +30,7 @@ func (hp *historyPaymentService) GetAllHistoriesPaymentService() ([]*model.Maste
 }
 
 func (hp *historyPaymentService) GetHistoryPaymentByIdService(id uint64) ([]*model.Master_Payment_History, error) {
-	history, err := hp.historyRepository.GetHistoryPaymentNasabahById(id)
+	history, err := hp.historyRepository.GetHistoryPaymentCustomerById(id)
 	if err != nil {
 		log.Printf("error history service %v", err)
 	}

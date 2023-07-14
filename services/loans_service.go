@@ -12,38 +12,38 @@ import (
 )
 
 type LoanService interface {
-	CreateLoanService(loan dto.CreatePinjamanDTO) (*model.Master_Loan, error)
-	UpdateLoanService(loan dto.UpdatePinjamanDTO) (*model.Master_Loan, error)
+	CreateLoanService(loan dto.CreateLoanDTO) (*model.Master_Loan, error)
+	UpdateLoanService(loan dto.UpdateLoanDTO) (*model.Master_Loan, error)
 	SearchLoanByIdService(id uint64) (*model.Master_Loan, error)
 	DeleteLoanService(id uint64) error
-	UpdateLoanStatusService(nasabahId uint64) (*model.Master_Loan, error)
+	UpdateLoanStatusService(customerId uint64) (*model.Master_Loan, error)
 }
 
 type loanService struct {
-	loanRepo    repository.LoansRepository
-	nasabahRepo repository.NasabahRepository
+	loanRepo     repository.LoansRepository
+	customerRepo repository.CustomerRepository
 }
 
-func NewLoanService(loanRepo repository.LoansRepository, nasabah repository.NasabahRepository) LoanService {
+func NewLoanService(loanRepo repository.LoansRepository, customer repository.CustomerRepository) LoanService {
 	return &loanService{
-		loanRepo:    loanRepo,
-		nasabahRepo: nasabah,
+		loanRepo:     loanRepo,
+		customerRepo: customer,
 	}
 }
 
-func (ls *loanService) CreateLoanService(loan dto.CreatePinjamanDTO) (*model.Master_Loan, error) {
+func (ls *loanService) CreateLoanService(loan dto.CreateLoanDTO) (*model.Master_Loan, error) {
 	loans := &model.Master_Loan{}
 	err := smapping.FillStruct(&loans, smapping.MapFields(&loan))
 	if err != nil {
 		log.Printf("Error %v", err)
 	}
 
-	nasabahId := strconv.Itoa(int(loan.Nasabah_Id))
+	customerId := strconv.Itoa(int(loan.Customer_Id))
 
-	serviceNasabah := NewNasabahService(ls.nasabahRepo)
-	nasabah := serviceNasabah.ProfileNasabah(nasabahId)
-	log.Printf("status verified %v", nasabah.StatusVerified)
-	if !nasabah.StatusVerified {
+	serviceCustomer := NewCustomerService(ls.customerRepo)
+	customer := serviceCustomer.ProfileCustomer(customerId)
+	log.Printf("status verified %v", customer.StatusVerified)
+	if !customer.StatusVerified {
 		if loan.Amount > 500000 {
 			return nil, errors.New("batas pinjaman untuk user yang belum terverifikasi adalah sebesar 500000")
 		}
@@ -60,19 +60,19 @@ func (ls *loanService) CreateLoanService(loan dto.CreatePinjamanDTO) (*model.Mas
 	return loans, nil
 }
 
-func (ls *loanService) UpdateLoanService(loan dto.UpdatePinjamanDTO) (*model.Master_Loan, error) {
+func (ls *loanService) UpdateLoanService(loan dto.UpdateLoanDTO) (*model.Master_Loan, error) {
 	loans := &model.Master_Loan{}
 	err := smapping.FillStruct(&loans, smapping.MapFields(&loan))
 	if err != nil {
 		log.Printf("Error map %v", err)
 	}
 
-	nasabahId := strconv.Itoa(int(loan.Nasabah_Id))
+	customerId := strconv.Itoa(int(loan.Customer_Id))
 
-	serviceNasabah := NewNasabahService(ls.nasabahRepo)
-	nasabah := serviceNasabah.ProfileNasabah(nasabahId)
-	log.Printf("status verified %v", nasabah.StatusVerified)
-	if !nasabah.StatusVerified {
+	serviceCustomer := NewCustomerService(ls.customerRepo)
+	customer := serviceCustomer.ProfileCustomer(customerId)
+	log.Printf("status verified %v", customer.StatusVerified)
+	if !customer.StatusVerified {
 		if loan.Amount > 500000 {
 			return nil, errors.New("batas pinjaman untuk user yang belum terverifikasi adalah sebesar 500000")
 		}
@@ -97,8 +97,8 @@ func (ls *loanService) DeleteLoanService(id uint64) error {
 	return ls.loanRepo.DeleteLoanRepository(id)
 }
 
-func (ls *loanService) UpdateLoanStatusService(nasabahId uint64) (*model.Master_Loan, error) {
-	loan, err := ls.loanRepo.UpdateLoanStatus(nasabahId)
+func (ls *loanService) UpdateLoanStatusService(customerId uint64) (*model.Master_Loan, error) {
+	loan, err := ls.loanRepo.UpdateLoanStatus(customerId)
 	if err != nil {
 		return nil, err
 	}

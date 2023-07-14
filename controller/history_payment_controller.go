@@ -27,6 +27,13 @@ func NewHistoryPaymentController(historyPaymentService services.HistoryPaymentSe
 	}
 }
 
+// @Summary Get all history payment
+// @Description Get a list of all available history payments
+// @Tags History Payment
+// @Produce json
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/history/payment/ [get]
 func (c *historyPaymentController) GetAllHistoryPaymentController(ctx *gin.Context) {
 	history, err := c.hps.GetAllHistoriesPaymentService()
 	if err != nil {
@@ -39,6 +46,14 @@ func (c *historyPaymentController) GetAllHistoryPaymentController(ctx *gin.Conte
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get history payment by ID
+// @Description Get a history payment by its ID
+// @Tags History Payment
+// @Param id path int true "ID of the history payment"
+// @Produce json
+// @Success 200 {object} helper.Response
+// @Failure 400 {object} helper.Response
+// @Router /app/history/payment/{id} [get]
 func (c *historyPaymentController) GetHistoryPaymentByIdController(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
 	if err != nil {
